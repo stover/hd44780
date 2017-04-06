@@ -48,14 +48,17 @@
 #define DB6     16
 #define DB7     18
 
+#define CMD_DELAY	1640
+#define SCRN_DELAY	40
+
 int export_pins[] = { RS, RW, E, DB4, DB5, DB6, DB7 };
 
 void pulseEnable(void)
 {
         gpio_set_value(E, HIGH);
-        udelay(1640);
+        udelay(CMD_DELAY);
         gpio_set_value(E, LOW);
-        udelay(1640);
+        udelay(CMD_DELAY);
 }
 
 void writeByte(int value)
@@ -131,18 +134,18 @@ void gpio_init(void)
 	gpio_set_value(RS, LOW);
 	gpio_set_value(RW, LOW);
 
-	udelay(1000);
+	udelay(CMD_DELAY);
 
 	for(i=0;i<3;i++) {
                 writeByte(0x3);
-                udelay(1640);
+                udelay(CMD_DELAY);
         }
 
         writeCommand(0x2);
         writeCommand(0x28);
         writeCommand(0x0C);
         writeCommand(0x01);
-        udelay(40);
+        udelay(SCRN_DELAY);
 
 	return;
 }
@@ -187,7 +190,7 @@ ssize_t hd44780_write(struct file *filep,const char *buff,size_t count,loff_t *o
 	}
 
 	writeCommand(0x01);
-	udelay(40);
+	udelay(SCRN_DELAY);
 
 	writeString(hd44780_data);
 
