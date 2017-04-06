@@ -1,3 +1,29 @@
+/**************************************************************************************
+ *
+ * MIT License
+ *
+ * Copyright (c) 2017 Stover Babcock <stoverbabcock@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ **************************************************************************************/
+
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -130,51 +156,40 @@ void gpio_init(void)
 }
 
 
-static char my_data[20]="\0";
-
-/*
-int my_open(struct inode *inode,struct file *filep);
-int my_release(struct inode *inode,struct file *filep);
-ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
-ssize_t my_write(struct file *filep,const char *buff,size_t count,loff_t *offp );
-*/
+static char hd44780_data[20]="\0";
 
 struct file_operations my_fops={
-        open: my_open,
-        read: my_read,
-        write: my_write,
-        release:my_release,
+        open: hd44780_open,
+        read: hd44780_read,
+        write: hd44780_write,
+        release: hd44780_release,
 };
 
-int my_open(struct inode *inode,struct file *filep)
+int hd44780_open(struct inode *inode,struct file *filep)
 {
         return 0;
 }
 
-int my_release(struct inode *inode,struct file *filep)
+int hd44780_release(struct inode *inode,struct file *filep)
 {
         return 0;
 }
 
-ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp )
+ssize_t hd44780_read(struct file *filep,char *buff,size_t count,loff_t *offp )
 {
-        /* function to copy kernel space buffer to user space*/
-        //if ( copy_to_user(buff, my_data, strlen(my_data)) != 0 ) {
-	if( copy_to_user(buff, my_data, count) !=0) {
+	if( copy_to_user(buff, hd44780_data, count) !=0) {
                 printk(KERN_INFO "Kernel -> userspace copy failed!\n" );
 		return 0;
 	}
 
-        return strlen(my_data);
+        return strlen(hd44780_data);
 }
 
-ssize_t my_write(struct file *filep,const char *buff,size_t count,loff_t *offp )
+ssize_t hd44780_write(struct file *filep,const char *buff,size_t count,loff_t *offp )
 {
-        /* function to copy user space buffer to kernel space*/
+	memset(hd44780_data, '\0', 20);
 
-	memset(my_data, '\0', 20);
-
-        if ( copy_from_user(my_data, buff, count) != 0 ) {
+        if ( copy_from_user(hd44780_data, buff, count) != 0 ) {
                 printk(KERN_INFO  "Userspace -> kernel copy failed!\n" );
 		return 0;
 	}
@@ -182,7 +197,7 @@ ssize_t my_write(struct file *filep,const char *buff,size_t count,loff_t *offp )
 	writeCommand(0x01);
 	udelay(40);
 
-	writeString(my_data);
+	writeString(hd44780_data);
 
         return count;
 }
@@ -230,7 +245,7 @@ static int __init start_module(void)
 
   gpio_init();
 
-  writeString("Testing the LCD");
+  writeString("HD44780 LCD driver.");
 
   if(register_chrdev(222, "hd44780", &my_fops)) {
 	printk(KERN_INFO "Failed to register /dev/hd44780");
