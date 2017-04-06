@@ -51,6 +51,9 @@
 #define CMD_DELAY	1640
 #define SCRN_DELAY	40
 
+#define RETRY		10
+#define PIN_COUNT	7
+
 int export_pins[] = { RS, RW, E, DB4, DB5, DB6, DB7 };
 
 void pulseEnable(void)
@@ -201,39 +204,46 @@ static int __init start_module(void)
 {
  int i=0,j=0;
 
- for(j=0;j<4;j++) {
-  for(i=0;i<=6;i++) {
+ /***********************************************************************
+  *
+  * GPIO pin hack.   
+  * Retrys for valid gpio request if pin initially is not valid.
+  *
+  ***********************************************************************/
+
+ for(j=0;j<RETRY;j++) {
+  for(i=0;i<PIN_COUNT;i++) {
    if(!gpio_is_valid(export_pins[i])) {
       printk(KERN_INFO "Invalid gpio pin %d\n", export_pins[i]);
-      //return -ENODEV;
+	udelay(MAX_UDELAY_MS);	
     }
    }
  }
  
-  for(j=0;j<4;j++) {
-   for(i=0;i<=6;i++) {
+  for(j=0;j<RETRY;j++) {
+   for(i=0;i<PIN_COUNT;i++) {
     if(!gpio_request(export_pins[i], "sysfs")) {
 	printk(KERN_INFO "Error requesting gpio pin %d\n", export_pins[i]);
-	//return -ENODEV;
+	udelay(MAX_UDELAY_MS);	
     }
    } 
   }
 
-  for(j=0;j<4;j++) {
-   for(i=0;i<=6;i++) {
+  for(j=0;j<RETRY;j++) {
+   for(i=0;i<PIN_COUNT;i++) {
     if(!gpio_direction_output(export_pins[i], OUT)) {
 	printk(KERN_INFO "Error setting gpio pin %d direction\n", export_pins[i]);
-	//return -ENODEV;
+	udelay(MAX_UDELAY_MS);
     }
    }
   }
 
 
- for(j=0;j<4;j++) {
-  for(i=0;i<=6;i++) {
+ for(j=0;j<RETRY;j++) {
+  for(i=0;i<PIN_COUNT;i++) {
    if(!gpio_export(export_pins[i], false)) {
 	printk(KERN_INFO "Error exporting gpio pin %d\n", export_pins[i]);
-	return -ENODEV;
+	udelay(MAX_UDELAY_MS);
    }   
   } 
  }
