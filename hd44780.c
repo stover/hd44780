@@ -28,16 +28,8 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/fs.h>
-#include <linux/types.h>
-#include <linux/interrupt.h>
 #include <linux/platform_device.h>
-#include <linux/of.h>
-#include <linux/completion.h>
 #include <linux/delay.h>
-#include <linux/io.h>
-#include <linux/slab.h>
-#include <linux/workqueue.h>
-#include <generated/utsrelease.h>
 #include <linux/gpio.h>
 
 #include "hd44780.h"

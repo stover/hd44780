@@ -27,11 +27,6 @@
 #ifndef _HD44780_H
 #define _HD44780_H_
 
-#include <linux/fs.h>
-#include <linux/sched.h>
-#include <linux/errno.h>
-#include <asm/current.h>
-#include <asm/segment.h>
 #include <asm/uaccess.h>
 
 int hd44780_open(struct inode *inode,struct file *filep);
