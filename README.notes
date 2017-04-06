@@ -1,0 +1,3 @@
+Linux device driver to control a hd44780 LCD display.
+
+To write a text message to the LCD display from the command line: ex. echo Hello > /dev/hd44780
