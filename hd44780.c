@@ -156,7 +156,7 @@ void gpio_init(void)
 
 static char hd44780_data[20]="\0";
 
-struct file_operations my_fops={
+struct file_operations hd44780_fops={
         open: hd44780_open,
         read: hd44780_read,
         write: hd44780_write,
@@ -252,7 +252,7 @@ static int __init start_module(void)
 
   writeString("HD44780 LCD driver.");
 
-  if(register_chrdev(222, "hd44780", &my_fops)) {
+  if(register_chrdev(222, "hd44780", &hd44780_fops)) {
 	printk(KERN_INFO "Failed to register /dev/hd44780");
   }
 
