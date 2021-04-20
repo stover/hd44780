@@ -175,7 +175,7 @@ int hd44780_release(struct inode *inode,struct file *filep)
 
 ssize_t hd44780_read(struct file *filep,char *buff,size_t count,loff_t *offp )
 {
-	if( copy_to_user(buff, hd44780_data, count) !=0) {
+	if( raw_copy_to_user(buff, hd44780_data, count) !=0) {
                 printk(KERN_INFO "Kernel -> userspace copy failed!\n" );
 		return 0;
 	}
@@ -187,7 +187,7 @@ ssize_t hd44780_write(struct file *filep,const char *buff,size_t count,loff_t *o
 {
 	memset(hd44780_data, '\0', 20);
 
-        if ( copy_from_user(hd44780_data, buff, count) != 0 ) {
+        if ( raw_copy_from_user(hd44780_data, buff, count) != 0 ) {
                 printk(KERN_INFO  "Userspace -> kernel copy failed!\n" );
 		return 0;
 	}
